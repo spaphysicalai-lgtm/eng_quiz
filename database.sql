@@ -9,65 +9,60 @@ CREATE TABLE IF NOT EXISTS questions (
   option_c TEXT NOT NULL,
   option_d TEXT NOT NULL,
   correct_answer CHAR(1) NOT NULL CHECK (correct_answer IN ('a', 'b', 'c', 'd')),
+  category TEXT NOT NULL CHECK (category IN ('reading', 'writing', 'vocabulary', 'grammar')),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
 );
 
--- 샘플 문제 데이터 삽입 (초등학교 2학년 수준)
+-- 샘플 문제 데이터 삽입 (미국 초등학생 1-3학년 수준)
 
--- 덧셈 문제
-INSERT INTO questions (question, option_a, option_b, option_c, option_d, correct_answer) VALUES
-('5 + 3 = ?', '6', '7', '8', '9', 'c'),
-('10 + 7 = ?', '15', '16', '17', '18', 'c'),
-('12 + 8 = ?', '18', '19', '20', '21', 'c'),
-('6 + 9 = ?', '13', '14', '15', '16', 'c'),
-('11 + 11 = ?', '20', '21', '22', '23', 'c');
+-- Reading (읽기) - 문장 이해
+INSERT INTO questions (question, option_a, option_b, option_c, option_d, correct_answer, category) VALUES
+('The cat is ___ the table.', 'in', 'on', 'at', 'by', 'b', 'reading'),
+('I ___ to school every day.', 'goes', 'go', 'going', 'gone', 'b', 'reading'),
+('She ___ a red dress.', 'wear', 'wears', 'wearing', 'worn', 'b', 'reading'),
+('The sun ___ in the morning.', 'rises', 'rise', 'rising', 'rose', 'a', 'reading'),
+('We ___ happy today.', 'am', 'is', 'are', 'be', 'c', 'reading'),
+('Birds can ___.', 'swim', 'fly', 'jump', 'run', 'b', 'reading'),
+('The dog is ___ the house.', 'inside', 'outside', 'under', 'all correct', 'd', 'reading'),
+('My mom ___ dinner.', 'cook', 'cooks', 'cooking', 'cooked', 'b', 'reading'),
+('I like to ___ books.', 'see', 'look', 'read', 'watch', 'c', 'reading'),
+('The ball is ___.', 'square', 'round', 'flat', 'long', 'b', 'reading');
 
--- 뺄셈 문제
-INSERT INTO questions (question, option_a, option_b, option_c, option_d, correct_answer) VALUES
-('15 - 7 = ?', '6', '7', '8', '9', 'c'),
-('20 - 12 = ?', '6', '7', '8', '9', 'c'),
-('18 - 9 = ?', '7', '8', '9', '10', 'c'),
-('25 - 15 = ?', '8', '9', '10', '11', 'c'),
-('30 - 18 = ?', '10', '11', '12', '13', 'c');
+-- Writing (쓰기) - 철자 및 대소문자
+INSERT INTO questions (question, option_a, option_b, option_c, option_d, correct_answer, category) VALUES
+('How do you spell "cat"?', 'kat', 'catt', 'cat', 'cet', 'c', 'writing'),
+('Which word is spelled correctly?', 'frend', 'friend', 'freind', 'frind', 'b', 'writing'),
+('How do you spell "dog"?', 'dawg', 'dogg', 'dog', 'doge', 'c', 'writing'),
+('Which sentence has correct capitalization?', 'i like apples.', 'I like apples.', 'I Like Apples.', 'i Like apples.', 'b', 'writing'),
+('How do you spell "book"?', 'buk', 'boook', 'book', 'bock', 'c', 'writing'),
+('Which is the correct spelling?', 'hapy', 'happy', 'happie', 'happi', 'b', 'writing'),
+('Start a sentence with:', 'a capital letter', 'a small letter', 'a number', 'a comma', 'a', 'writing'),
+('How do you spell "play"?', 'pley', 'play', 'plai', 'plae', 'b', 'writing'),
+('Which word is correct?', 'scool', 'school', 'shool', 'skool', 'b', 'writing'),
+('End a sentence with:', 'a comma', 'nothing', 'a period', 'a space', 'c', 'writing');
 
--- 곱셈 문제 (2학년 수준)
-INSERT INTO questions (question, option_a, option_b, option_c, option_d, correct_answer) VALUES
-('2 × 3 = ?', '4', '5', '6', '7', 'c'),
-('2 × 5 = ?', '8', '9', '10', '11', 'c'),
-('3 × 3 = ?', '7', '8', '9', '10', 'c'),
-('2 × 4 = ?', '6', '7', '8', '9', 'c'),
-('5 × 2 = ?', '8', '9', '10', '11', 'c');
+-- Vocabulary (단어) - 단어 의미
+INSERT INTO questions (question, option_a, option_b, option_c, option_d, correct_answer, category) VALUES
+('What is the opposite of "hot"?', 'warm', 'cold', 'cool', 'heat', 'b', 'vocabulary'),
+('What is a "chair"?', 'something to eat', 'something to sit', 'something to drink', 'something to wear', 'b', 'vocabulary'),
+('What is the opposite of "big"?', 'large', 'huge', 'small', 'tall', 'c', 'vocabulary'),
+('A "book" is for:', 'eating', 'reading', 'drinking', 'sleeping', 'b', 'vocabulary'),
+('What is the opposite of "happy"?', 'sad', 'angry', 'tired', 'hungry', 'a', 'vocabulary'),
+('What color is the sky?', 'red', 'green', 'blue', 'yellow', 'c', 'vocabulary'),
+('What is a "banana"?', 'a fruit', 'a vegetable', 'a drink', 'a toy', 'a', 'vocabulary'),
+('What is the opposite of "day"?', 'morning', 'night', 'afternoon', 'evening', 'b', 'vocabulary'),
+('What do you use to write?', 'a fork', 'a spoon', 'a pencil', 'a plate', 'c', 'vocabulary'),
+('What is the opposite of "up"?', 'left', 'right', 'down', 'side', 'c', 'vocabulary');
 
--- 비교 문제
-INSERT INTO questions (question, option_a, option_b, option_c, option_d, correct_answer) VALUES
-('10과 15 중 더 큰 수는?', '10', '15', '같다', '모르겠다', 'b'),
-('8과 5 중 더 작은 수는?', '8', '5', '같다', '모르겠다', 'b'),
-('20과 25 중 더 큰 수는?', '20', '25', '같다', '모르겠다', 'b');
-
--- 시계 읽기
-INSERT INTO questions (question, option_a, option_b, option_c, option_d, correct_answer) VALUES
-('시계가 3시를 가리킵니다. 2시간 후는 몇 시인가요?', '4시', '5시', '6시', '7시', 'b'),
-('지금이 오전 9시입니다. 3시간 후는?', '오전 11시', '정오 12시', '오후 1시', '오후 2시', 'b');
-
--- 도형 문제
-INSERT INTO questions (question, option_a, option_b, option_c, option_d, correct_answer) VALUES
-('삼각형은 변이 몇 개인가요?', '2개', '3개', '4개', '5개', 'b'),
-('사각형은 꼭짓점이 몇 개인가요?', '2개', '3개', '4개', '5개', 'c'),
-('원은 꼭짓점이 몇 개인가요?', '0개', '1개', '2개', '3개', 'a');
-
--- 길이 측정
-INSERT INTO questions (question, option_a, option_b, option_c, option_d, correct_answer) VALUES
-('1m는 몇 cm인가요?', '10cm', '50cm', '100cm', '1000cm', 'c'),
-('연필 1자루의 길이는 약 몇 cm인가요?', '5cm', '10cm', '20cm', '50cm', 'c');
-
--- 수의 순서
-INSERT INTO questions (question, option_a, option_b, option_c, option_d, correct_answer) VALUES
-('15, 16, 17, ?의 다음 수는?', '18', '19', '20', '21', 'a'),
-('20, 30, 40, ?의 다음 수는?', '45', '50', '55', '60', 'b'),
-('10, 20, 30의 가운데 수는?', '10', '15', '20', '25', 'c');
-
--- 간단한 문장제
-INSERT INTO questions (question, option_a, option_b, option_c, option_d, correct_answer) VALUES
-('사과가 5개 있습니다. 3개를 더 받았어요. 모두 몇 개인가요?', '6개', '7개', '8개', '9개', 'c'),
-('연필이 12자루 있었는데 4자루를 친구에게 주었어요. 남은 연필은?', '6자루', '7자루', '8자루', '9자루', 'c'),
-('교실에 학생이 18명 있었는데 5명이 나갔어요. 몇 명이 남았나요?', '11명', '12명', '13명', '14명', 'c');
+-- Grammar (문법) - 기초 문법
+INSERT INTO questions (question, option_a, option_b, option_c, option_d, correct_answer, category) VALUES
+('I ___ a student.', 'am', 'is', 'are', 'be', 'a', 'grammar'),
+('She ___ my friend.', 'am', 'is', 'are', 'be', 'b', 'grammar'),
+('They ___ at home.', 'am', 'is', 'are', 'be', 'c', 'grammar'),
+('Choose the verb: "I ___ an apple."', 'am', 'eat', 'happy', 'red', 'b', 'grammar'),
+('Choose the noun: "The ___ is red."', 'run', 'jump', 'apple', 'quickly', 'c', 'grammar'),
+('Which is a question?', 'I like dogs.', 'The cat runs.', 'Where is mom?', 'We are happy.', 'c', 'grammar'),
+('He ___ to school.', 'go', 'goes', 'going', 'gone', 'b', 'grammar'),
+('We ___ lunch at noon.', 'eat', 'eats', 'eating', 'ate', 'a', 'grammar'),
+('Which is plural?', 'dog', 'dogs', 'doges', 'dogo', 'b', 'grammar'),
+('I have two ___.', 'cat', 'cats', 'cates', 'catoes', 'b', 'grammar');

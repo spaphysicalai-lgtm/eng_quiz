@@ -1,6 +1,6 @@
-# 초등 2학년 퀴즈 앱
+# English Quiz App for Kids
 
-초등학교 2학년 수준의 사지선다형 문제를 풀 수 있는 웹 애플리케이션입니다.
+An interactive English quiz application for elementary school students (grades 1-3). Features multiple-choice questions across four categories: Reading, Writing, Vocabulary, and Grammar.
 
 ## 🚀 기술 스택
 
@@ -8,6 +8,13 @@
 - **Backend**: Node.js + Express
 - **Database**: Supabase
 - **Deployment**: Vercel
+
+## 📚 Quiz Categories
+
+- **📖 Reading** - Sentence comprehension and understanding
+- **✍️ Writing** - Spelling and capitalization
+- **📚 Vocabulary** - Word meanings and opposites
+- **📝 Grammar** - Basic grammar rules (verbs, nouns, plurals)
 
 ## 📋 설정 방법
 
@@ -21,6 +28,7 @@ npm install
 
 1. [Supabase](https://supabase.com)에서 새 프로젝트 생성
 2. SQL Editor에서 `database.sql` 파일의 내용을 실행하여 테이블과 샘플 데이터 생성
+   - 40 English questions across 4 categories
 3. Settings > API에서 프로젝트 URL과 anon key 복사
 
 ### 3. 환경 변수 설정
@@ -132,20 +140,24 @@ vibe/
 ```
 
 ## 🎮 주요 기능
-
-- ✅ 랜덤 문제 출제
-- ✅ 실시간 정답 확인
-- ✅ 점수 기록 (맞힌 문제/틀린 문제)
-- ✅ 반응형 디자인
-- ✅ 애니메이션 효과
+Random question selection
+- ✅ 4 categories: Reading, Writing, Vocabulary, Grammar
+- ✅ Real-time answer checking
+- ✅ Score tracking (correct/wrong)
+- ✅ Responsive design
+- ✅ Kid-friendly animations
+- ✅ 40 questions (10 per category)
+- ✅ US Elementary Grade 1-3 level
 
 ## 📝 문제 추가하기
 
 Supabase 대시보드의 Table Editor에서 `questions` 테이블에 직접 추가하거나, SQL Editor에서 다음과 같이 추가:
 
 ```sql
-INSERT INTO questions (question, option_a, option_b, option_c, option_d, correct_answer) 
-VALUES ('문제 내용?', '선택지1', '선택지2', '선택지3', '선택지4', 'c');
+INSERT INTO questions (question, option_a, option_b, option_c, option_d, correct_answer, category) 
+VALUES ('Question text?', 'Option A', 'Option B', 'Option C', 'Option D', 'b', 'reading');
 ```
 
+`correct_answer`는 'a', 'b', 'c', 'd' 중 하나여야 합니다.
+`category`는 'reading', 'writing', 'vocabulary', 'grammar
 `correct_answer`는 'a', 'b', 'c', 'd' 중 하나여야 합니다.

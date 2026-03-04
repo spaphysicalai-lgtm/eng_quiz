@@ -11,6 +11,15 @@ const resultMessageEl = document.getElementById('result-message');
 const nextButtonEl = document.getElementById('next-button');
 const correctCountEl = document.getElementById('correct-count');
 const wrongCountEl = document.getElementById('wrong-count');
+const categoryBadgeEl = document.getElementById('category-badge');
+
+// 카테고리 이름 매핑
+const categoryNames = {
+    'reading': '📖 Reading',
+    'writing': '✍️ Writing',
+    'vocabulary': '📚 Vocabulary',
+    'grammar': '📝 Grammar'
+};
 
 // 새 문제 로드
 async function loadQuestion() {
@@ -21,13 +30,13 @@ async function loadQuestion() {
         nextButtonEl.style.display = 'none';
         
         const response = await fetch('/api/questions/random');
-        if (!response.ok) throw new Error('문제를 불러올 수 없습니다.');
+        if (!response.ok) throw new Error('Failed to load question');
         
         currentQuestion = await response.json();
         displayQuestion();
     } catch (error) {
         console.error('Error loading question:', error);
-        loadingEl.textContent = '문제를 불러오는데 실패했습니다. 새로고침 해주세요.';
+        loadingEl.textContent = 'Failed to load question. Please refresh.';
     }
 }
 
@@ -35,6 +44,15 @@ async function loadQuestion() {
 function displayQuestion() {
     loadingEl.style.display = 'none';
     quizContentEl.style.display = 'block';
+    
+    // 카테고리 표시
+    if (currentQuestion.category) {
+        categoryBadgeEl.textContent = categoryNames[currentQuestion.category] || currentQuestion.category;
+        categoryBadgeEl.className = `category-badge ${currentQuestion.category}`;
+        categoryBadgeEl.style.display = 'inline-block';
+    } else {
+        categoryBadgeEl.style.display = 'none';
+    }
     
     questionTextEl.textContent = currentQuestion.question;
     optionsContainerEl.innerHTML = '';
@@ -68,7 +86,7 @@ async function selectAnswer(selectedAnswer) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                questionId: currentQuestion.id,
+               Failed to check answerrentQuestion.id,
                 answer: selectedAnswer
             })
         });
@@ -91,12 +109,12 @@ function showResult(isCorrect, selectedAnswer, correctAnswer) {
         
         if (optionLetter === correctAnswer) {
             btn.classList.add('correct');
-        } else if (optionLetter === selectedAnswer && !isCorrect) {
-            btn.classList.add('wrong');
-        }
-    });
-    
-    resultMessageEl.className = 'result-message show';
+        } else if (optionLetter === selectCorrect! Great job!';
+        correctCount++;
+        correctCountEl.textContent = correctCount;
+    } else {
+        resultMessageEl.classList.add('wrong');
+        resultMessageEl.textContent = '😊 Not quite! Try the next one
     
     if (isCorrect) {
         resultMessageEl.classList.add('correct');

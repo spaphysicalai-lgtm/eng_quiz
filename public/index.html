@@ -3,25 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>초등 2학년 퀴즈</title>
+    <title>English Quiz for Kids</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🎓 초등 2학년 퀴즈</h1>
+            <h1>📚 English Quiz</h1>
+            <p class="subtitle">For Elementary Students</p>
             <div class="score-board">
-                <span>맞힌 문제: <span id="correct-count">0</span></span>
-                <span>틀린 문제: <span id="wrong-count">0</span></span>
+                <span>Correct: <span id="correct-count">0</span></span>
+                <span>Wrong: <span id="wrong-count">0</span></span>
             </div>
         </header>
 
         <main id="quiz-container">
             <div id="loading" class="loading">
-                문제를 불러오는 중...
+                Loading question...
             </div>
 
             <div id="quiz-content" class="quiz-content" style="display: none;">
+                <div class="category-badge" id="category-badge"></div>
+                
                 <div class="question-box">
                     <h2 id="question-text"></h2>
                 </div>
@@ -33,13 +36,13 @@
                 <div id="result-message" class="result-message"></div>
 
                 <button id="next-button" class="btn-next" style="display: none;">
-                    다음 문제
+                    Next Question
                 </button>
             </div>
         </main>
 
         <footer>
-            <p>즐겁게 공부해요! 🌟</p>
+            <p>Keep learning! 🌟</p>
         </footer>
     </div>
 

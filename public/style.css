@@ -32,7 +32,13 @@ header {
 
 header h1 {
     font-size: 2.5em;
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    font-size: 1.1em;
     margin-bottom: 15px;
+    opacity: 0.95;
 }
 
 .score-board {
@@ -57,6 +63,37 @@ main {
 
 .quiz-content {
     animation: fadeIn 0.5s ease-in;
+}
+
+.category-badge {
+    display: inline-block;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.9em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+}
+
+.category-badge.reading {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.category-badge.writing {
+    background: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.category-badge.vocabulary {
+    background: #e8f5e9;
+    color: #388e3c;
+}
+
+.category-badge.grammar {
+    background: #fff3e0;
+    color: #f57c00;
 }
 
 @keyframes fadeIn {
