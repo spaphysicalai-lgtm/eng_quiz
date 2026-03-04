@@ -48,21 +48,73 @@ npm start
 
 ## 🌐 Vercel 배포
 
+### ⚠️ 중요: 환경 변수 설정 필수!
+
+배포 후 반드시 Vercel에서 환경 변수를 설정해야 합니다.
+
 ### 방법 1: Vercel CLI 사용
 
 ```bash
 npm install -g vercel
+vercel login
 vercel
 ```
 
-### 방법 2: GitHub 연동
+배포 후 환경 변수 추가:
 
-1. GitHub에 저장소 생성 및 코드 푸시
-2. [Vercel](https://vercel.com)에서 Import Project
-3. Environment Variables에 다음 추가:
-   - `SUPABASE_URL`
-   - `SUPABASE_ANON_KEY`
-4. Deploy 버튼 클릭
+```bash
+vercel env add SUPABASE_URL production
+```
+입력: `https://gfrgaqqugwmzxqowhhbx.supabase.co`
+
+```bash
+vercel env add SUPABASE_ANON_KEY production
+```
+입력: `(Supabase anon key)`
+
+환경 변수 추가 후 재배포:
+```bash
+vercel --prod
+```
+
+### 방법 2: GitHub 연동 (권장)
+
+1. **GitHub 저장소에 코드 푸시**
+
+2. **[Vercel](https://vercel.com) 접속**
+   - "Add New Project" 클릭
+   - GitHub 저장소 선택 및 Import
+
+3. **Environment Variables 설정** (필수!)
+   - Settings → Environment Variables로 이동
+   - 다음 변수 추가:
+   
+   | Name | Value |
+   |------|-------|
+   | `SUPABASE_URL` | `https://gfrgaqqugwmzxqowhhbx.supabase.co` |
+   | `SUPABASE_ANON_KEY` | `(Supabase 프로젝트의 anon key)` |
+   
+   - Environment: Production, Preview, Development 모두 선택
+
+4. **재배포**
+   - Deployments 탭으로 이동
+   - 최신 배포 선택 → "Redeploy" 클릭
+
+### 환경 변수 확인 방법
+
+배포 후 다음 URL 접속하여 Supabase 연결 확인:
+```
+https://your-project.vercel.app/api/test
+```
+
+성공 시 응답:
+```json
+{
+  "success": true,
+  "message": "Supabase 연결 성공!",
+  "hasData": true
+}
+```
 
 ## 📁 프로젝트 구조
 

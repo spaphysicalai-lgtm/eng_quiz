@@ -6,14 +6,28 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// 환경 변수 확인
+if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
+  console.error('❌ ERROR: Supabase 환경 변수가 설정되지 않았습니다!');
+  console.error('SUPABASE_URL:', process.env.SUPABASE_URL || 'NOT SET');
+  console.error('SUPABASE_ANON_KEY:', process.env.SUPABASE_ANON_KEY ? 'Set' : 'NOT SET');
+  console.error('\nVercel 환경 변수 설정 방법:');
+  console.error('1. Vercel Dashboard 접속');
+  console.error('2. 프로젝트 선택 → Settings → Environment Variables');
+  console.error('3. 다음 변수 추가:');
+  console.error('   - SUPABASE_URL = https://gfrgaqqugwmzxqowhhbx.supabase.co');
+  console.error('   - SUPABASE_ANON_KEY = (your anon key)');
+  console.error('4. Deployments 탭에서 Redeploy\n');
+}
+
 // Supabase 클라이언트 초기화
 console.log('Initializing Supabase client...');
-console.log('SUPABASE_URL:', process.env.SUPABASE_URL);
-console.log('SUPABASE_ANON_KEY:', process.env.SUPABASE_ANON_KEY ? 'Set' : 'Not set');
+console.log('SUPABASE_URL:', process.env.SUPABASE_URL || 'NOT SET');
+console.log('SUPABASE_ANON_KEY:', process.env.SUPABASE_ANON_KEY ? 'Set' : 'NOT SET');
 
 const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
+  process.env.SUPABASE_URL || 'https://gfrgaqqugwmzxqowhhbx.supabase.co',
+  process.env.SUPABASE_ANON_KEY || ''
 );
 
 app.use(express.json());
