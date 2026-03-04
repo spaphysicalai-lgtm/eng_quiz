@@ -94,38 +94,68 @@ app.get('/api/questions', async (req, res) => {
 // 랜덤 문제 가져오기
 app.get('/api/questions/random', async (req, res) => {
   try {
-    console.log('Fetching random question...');
-    const { data, error } = await supabase
-      .from('questions')
-      .select('*');
+    const category = req.query.category || 'reading';
+    console.log('Fetching random question for category:', category);
     
-    if (error) {
-      console.error('Supabase error details:', {
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
-        code: error.code
-      });
-      throw error;
-    }
-    
-    console.log('Questions fetched:', data ? data.length : 0);
-    
-    if (data && data.length > 0) {
-      const randomQuestion = data[Math.floor(Math.random() * data.length)];
-      res.json(randomQuestion);
+    if (category === 'writing') {
+      // Writing exercises from separate table
+      const { data, error } = await supabase
+        .from('writing_exercises')
+        .select('*');
+      
+      if (error) {
+        console.error('Supabase error details:', error);
+        throw error;
+      }
+      
+      console.log('Writing exercises fetched:', data ? data.length : 0);
+      
+      if (data && data.length > 0) {
+        const randomExercise = data[Math.floor(Math.random() * data.length)];
+        // Parse JSONB fields
+        randomExercise.blanks = typeof randomExercise.blanks === 'string' 
+          ? JSON.parse(randomExercise.blanks) 
+          : randomExercise.blanks;
+        randomExercise.hints = typeof randomExercise.hints === 'string' 
+          ? JSON.parse(randomExercise.hints) 
+          : randomExercise.hints;
+        res.json(randomExercise);
+      } else {
+        res.status(404).json({ 
+          error: 'No writing exercises found.',
+          hint: 'Run database.sql in Supabase SQL Editor.'
+        });
+      }
     } else {
-      res.status(404).json({ 
-        error: '문제가 없습니다.',
-        hint: 'Supabase에서 database.sql을 실행했는지 확인하세요.'
-      });
+      // Multiple choice questions
+      const { data, error } = await supabase
+        .from('questions')
+        .select('*')
+        .eq('category', category);
+      
+      if (error) {
+        console.error('Supabase error details:', error);
+        throw error;
+      }
+      
+      console.log('Questions fetched:', data ? data.length : 0);
+      
+      if (data && data.length > 0) {
+        const randomQuestion = data[Math.floor(Math.random() * data.length)];
+        res.json(randomQuestion);
+      } else {
+        res.status(404).json({ 
+          error: 'No questions found.',
+          hint: 'Run database.sql in Supabase SQL Editor.'
+        });
+      }
     }
   } catch (error) {
     console.error('Error fetching random question:', error);
     res.status(500).json({ 
-      error: '문제를 불러오는데 실패했습니다.',
+      error: 'Failed to fetch question.',
       message: error.message,
-      details: error.details || error.hint || '상세 정보 없음'
+      details: error.details || error.hint || 'No details'
     });
   }
 });

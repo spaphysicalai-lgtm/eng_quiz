@@ -8,42 +8,105 @@
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>📚 English Quiz</h1>
-            <p class="subtitle">For Elementary Students</p>
-            <div class="score-board">
-                <span>Correct: <span id="correct-count">0</span></span>
-                <span>Wrong: <span id="wrong-count">0</span></span>
-            </div>
-        </header>
-
-        <main id="quiz-container">
-            <div id="loading" class="loading">
-                Loading question...
-            </div>
-
-            <div id="quiz-content" class="quiz-content" style="display: none;">
-                <div class="category-badge" id="category-badge"></div>
+        <!-- Category Selection Page -->
+        <div id="category-page" class="page active">
+            <header>
+                <h1>📚 English Quiz</h1>
+                <p class="subtitle">Choose Your Category</p>
+            </header>
+            
+            <main class="category-grid">
+                <div class="category-card reading" onclick="selectCategory('reading')">
+                    <div class="category-icon">📖</div>
+                    <h2>Reading</h2>
+                    <p>Sentence comprehension</p>
+                    <span class="question-count">30 questions</span>
+                </div>
                 
-                <div class="question-box">
-                    <h2 id="question-text"></h2>
+                <div class="category-card writing" onclick="selectCategory('writing')">
+                    <div class="category-icon">✍️</div>
+                    <h2>Writing</h2>
+                    <p>Story completion</p>
+                    <span class="question-count">30 exercises</span>
+                </div>
+                
+                <div class="category-card vocabulary" onclick="selectCategory('vocabulary')">
+                    <div class="category-icon">📚</div>
+                    <h2>Vocabulary</h2>
+                    <p>Word meanings</p>
+                    <span class="question-count">30 questions</span>
+                </div>
+                
+                <div class="category-card grammar" onclick="selectCategory('grammar')">
+                    <div class="category-icon">📝</div>
+                    <h2>Grammar</h2>
+                    <p>Basic grammar rules</p>
+                    <span class="question-count">30 questions</span>
+                </div>
+            </main>
+        </div>
+
+        <!-- Quiz Page -->
+        <div id="quiz-page" class="page">
+            <header>
+                <div class="header-content">
+                    <button id="back-button" class="back-btn" onclick="goBack()">← Back</button>
+                    <div class="header-center">
+                        <h1>📚 English Quiz</h1>
+                        <div class="category-badge" id="current-category"></div>
+                    </div>
+                    <div class="score-board">
+                        <span>✓ <span id="correct-count">0</span></span>
+                        <span>✗ <span id="wrong-count">0</span></span>
+                    </div>
+                </div>
+            </header>
+
+            <main id="quiz-container">
+                <div id="loading" class="loading">
+                    Loading question...
                 </div>
 
-                <div class="options-container" id="options-container">
-                    <!-- 선택지가 여기에 동적으로 추가됩니다 -->
+                <!-- Multiple Choice Questions -->
+                <div id="quiz-content" class="quiz-content" style="display: none;">
+                    <div class="question-box">
+                        <h2 id="question-text"></h2>
+                    </div>
+
+                    <div class="options-container" id="options-container">
+                        <!-- Options will be added dynamically -->
+                    </div>
+
+                    <div id="result-message" class="result-message"></div>
+
+                    <button id="next-button" class="btn-next" style="display: none;">
+                        Next Question
+                    </button>
                 </div>
 
-                <div id="result-message" class="result-message"></div>
+                <!-- Writing Exercise -->
+                <div id="writing-content" class="writing-content" style="display: none;">
+                    <div class="story-box">
+                        <div id="story-text"></div>
+                    </div>
 
-                <button id="next-button" class="btn-next" style="display: none;">
-                    Next Question
-                </button>
-            </div>
-        </main>
+                    <div class="hints-box">
+                        <h3>💡 Word Bank</h3>
+                        <div id="hints-container"></div>
+                    </div>
 
-        <footer>
-            <p>Keep learning! 🌟</p>
-        </footer>
+                    <div id="result-message-writing" class="result-message"></div>
+
+                    <button id="check-button" class="btn-check" onclick="checkWriting()">
+                        Check Answers
+                    </button>
+
+                    <button id="next-button-writing" class="btn-next" style="display: none;">
+                        Next Story
+                    </button>
+                </div>
+            </main>
+        </div>
     </div>
 
     <script src="app.js"></script>
