@@ -1,0 +1,18 @@
+{
+  "name": "quiz-app",
+  "version": "1.0.0",
+  "description": "초등학교 2학년 사지선다형 퀴즈 앱",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "@supabase/supabase-js": "^2.39.0",
+    "dotenv": "^16.3.1"
+  },
+  "engines": {
+    "node": ">=18.x"
+  }
+}
