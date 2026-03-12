@@ -197,11 +197,25 @@
         @keyframes spin {
             100% { transform: rotate(360deg); }
         }
+
+        .back-home-btn {
+            display: block;
+            width: fit-content;
+            margin: 0 auto 20px;
+            background: #6c757d;
+            padding: 8px 20px;
+            font-size: 14px;
+        }
+
+        .back-home-btn:hover {
+            background: #5a6268;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🤖 GPT API 테스트</h1>
+        <button class="back-home-btn" onclick="location.href='/'">← 메인 메뉴로 돌아가기</button>
         <p class="subtitle">Microsoft Foundry GPT 5.2 Chat API 연동 테스트</p>
 
         <!-- 일반 채팅 테스트 -->

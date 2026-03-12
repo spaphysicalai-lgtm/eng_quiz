@@ -114,6 +114,14 @@ header h1 {
     background: #fff3e0;
 }
 
+.category-card.gpt-test {
+    border-color: #9c27b0;
+}
+
+.category-card.gpt-test:hover {
+    background: #f3e5f5;
+}
+
 .category-icon {
     font-size: 4em;
     margin-bottom: 15px;
