@@ -16,6 +16,14 @@
       "dest": "/server.js"
     },
     {
+      "src": "/gpt-test.html",
+      "dest": "/public/gpt-test.html"
+    },
+    {
+      "src": "/(.+\\.(js|css|html))",
+      "dest": "/public/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "/public/$1"
     }
