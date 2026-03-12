@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPT API 테스트</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .test-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .response {
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            display: none;
+        }
+
+        .response.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .response.error {
+            border-left-color: #e74c3c;
+            background: #fee;
+        }
+
+        .response.success {
+            border-left-color: #2ecc71;
+        }
+
+        .response-label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .response-content {
+            color: #555;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .status.ready {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .loading {
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        .loading::after {
+            content: '⏳';
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 GPT API 테스트</h1>
+        <p class="subtitle">Microsoft Foundry GPT 5.2 Chat API 연동 테스트</p>
+
+        <!-- 일반 채팅 테스트 -->
+        <div class="test-section">
+            <h2>💬 일반 채팅 테스트 (/api/chat)</h2>
+            <div class="input-group">
+                <label for="chatMessage">메시지를 입력하세요:</label>
+                <textarea id="chatMessage" placeholder="예: 영어로 사과는 어떻게 말하나요?">안녕하세요! 초등학교 2학년 학생을 위한 영어 단어 'apple'의 뜻을 재미있게 설명해주세요.</textarea>
+            </div>
+            <button onclick="testChat()" id="chatBtn">채팅 보내기</button>
+            <div id="chatResponse" class="response">
+                <div class="response-label">응답:</div>
+                <div class="response-content" id="chatContent"></div>
+            </div>
+        </div>
+
+        <!-- 문제 해설 테스트 -->
+        <div class="test-section">
+            <h2>📖 문제 해설 테스트 (/api/explain)</h2>
+            <div class="input-group">
+                <label for="question">문제:</label>
+                <input type="text" id="question" value="What color is the sky?">
+            </div>
+            <div class="input-group">
+                <label for="correctAnswer">정답:</label>
+                <input type="text" id="correctAnswer" value="blue">
+            </div>
+            <div class="input-group">
+                <label for="userAnswer">학생의 답:</label>
+                <input type="text" id="userAnswer" value="red">
+            </div>
+            <div class="input-group">
+                <label for="category">카테고리:</label>
+                <input type="text" id="category" value="reading">
+            </div>
+            <button onclick="testExplain()" id="explainBtn">해설 생성</button>
+            <div id="explainResponse" class="response">
+                <div class="response-label">해설:</div>
+                <div class="response-content" id="explainContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 채팅 테스트
+        async function testChat() {
+            const messageInput = document.getElementById('chatMessage');
+            const responseDiv = document.getElementById('chatResponse');
+            const contentDiv = document.getElementById('chatContent');
+            const btn = document.getElementById('chatBtn');
+
+            const message = messageInput.value.trim();
+            if (!message) {
+                alert('메시지를 입력해주세요!');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '전송 중... <span class="loading"></span>';
+            responseDiv.classList.remove('show', 'error', 'success');
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        messages: [
+                            { role: 'system', content: '당신은 초등학교 2학년 학생들을 가르치는 친절한 선생님입니다.' },
+                            { role: 'user', content: message }
+                        ],
+                        temperature: 0.7,
+                        maxTokens: 500
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    contentDiv.textContent = data.message;
+                    if (data.usage) {
+                        contentDiv.textContent += `\n\n📊 토큰 사용량: ${data.usage.total_tokens} (입력: ${data.usage.prompt_tokens}, 출력: ${data.usage.completion_tokens})`;
+                    }
+                    responseDiv.classList.add('success');
+                } else {
+                    contentDiv.textContent = `❌ 오류: ${data.error}\n${data.message || ''}`;
+                    responseDiv.classList.add('error');
+                }
+
+                responseDiv.classList.add('show');
+
+            } catch (error) {
+                contentDiv.textContent = `❌ 네트워크 오류: ${error.message}`;
+                responseDiv.classList.add('show', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '채팅 보내기';
+            }
+        }
+
+        // 해설 테스트
+        async function testExplain() {
+            const question = document.getElementById('question').value;
+            const correctAnswer = document.getElementById('correctAnswer').value;
+            const userAnswer = document.getElementById('userAnswer').value;
+            const category = document.getElementById('category').value;
+            
+            const responseDiv = document.getElementById('explainResponse');
+            const contentDiv = document.getElementById('explainContent');
+            const btn = document.getElementById('explainBtn');
+
+            if (!question || !correctAnswer) {
+                alert('문제와 정답을 입력해주세요!');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '생성 중... <span class="loading"></span>';
+            responseDiv.classList.remove('show', 'error', 'success');
+
+            try {
+                const response = await fetch('/api/explain', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        question,
+                        correctAnswer,
+                        userAnswer,
+                        category
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    contentDiv.textContent = data.explanation;
+                    responseDiv.classList.add('success');
+                } else {
+                    contentDiv.textContent = `❌ 오류: ${data.error}\n${data.message || ''}`;
+                    responseDiv.classList.add('error');
+                }
+
+                responseDiv.classList.add('show');
+
+            } catch (error) {
+                contentDiv.textContent = `❌ 네트워크 오류: ${error.message}`;
+                responseDiv.classList.add('show', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '해설 생성';
+            }
+        }
+
+        // Enter 키로 전송
+        document.getElementById('chatMessage').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                testChat();
+            }
+        });
+    </script>
+</body>
+</html>

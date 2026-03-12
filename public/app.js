@@ -4,24 +4,6 @@ let correctCount = 0;
 let wrongCount = 0;
 let currentAnswers = {};
 
-// 요소 선택
-const categoryPage = document.getElementById('category-page');
-const quizPage = document.getElementById('quiz-page');
-const loadingEl = document.getElementById('loading');
-const quizContentEl = document.getElementById('quiz-content');
-const writingContentEl = document.getElementById('writing-content');
-const questionTextEl = document.getElementById('question-text');
-const optionsContainerEl = document.getElementById('options-container');
-const resultMessageEl = document.getElementById('result-message');
-const resultMessageWritingEl = document.getElementById('result-message-writing');
-const nextButtonEl = document.getElementById('next-button');
-const nextButtonWritingEl = document.getElementById('next-button-writing');
-const correctCountEl = document.getElementById('correct-count');
-const wrongCountEl = document.getElementById('wrong-count');
-const currentCategoryEl = document.getElementById('current-category');
-const storyTextEl = document.getElementById('story-text');
-const hintsContainerEl = document.getElementById('hints-container');
-
 // 카테고리 이름 매핑
 const categoryNames = {
     'reading': '📖 Reading',
@@ -29,6 +11,62 @@ const categoryNames = {
     'vocabulary': '📚 Vocabulary',
     'grammar': '📝 Grammar'
 };
+
+// DOM 요소들 (나중에 초기화)
+let categoryPage, quizPage, loadingEl, quizContentEl, writingContentEl;
+let questionTextEl, optionsContainerEl, resultMessageEl, resultMessageWritingEl;
+let nextButtonEl, nextButtonWritingEl, correctCountEl, wrongCountEl;
+let currentCategoryEl, storyTextEl, hintsContainerEl;
+
+// DOM 로드 완료 후 초기화
+document.addEventListener('DOMContentLoaded', function() {
+    // 요소 선택
+    categoryPage = document.getElementById('category-page');
+    quizPage = document.getElementById('quiz-page');
+    loadingEl = document.getElementById('loading');
+    quizContentEl = document.getElementById('quiz-content');
+    writingContentEl = document.getElementById('writing-content');
+    questionTextEl = document.getElementById('question-text');
+    optionsContainerEl = document.getElementById('options-container');
+    resultMessageEl = document.getElementById('result-message');
+    resultMessageWritingEl = document.getElementById('result-message-writing');
+    nextButtonEl = document.getElementById('next-button');
+    nextButtonWritingEl = document.getElementById('next-button-writing');
+    correctCountEl = document.getElementById('correct-count');
+    wrongCountEl = document.getElementById('wrong-count');
+    currentCategoryEl = document.getElementById('current-category');
+    storyTextEl = document.getElementById('story-text');
+    hintsContainerEl = document.getElementById('hints-container');
+    
+    // 카테고리 카드 클릭 이벤트
+    document.querySelectorAll('.category-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const category = this.dataset.category;
+            selectCategory(category);
+        });
+    });
+    
+    // 뒤로가기 버튼
+    const backButton = document.getElementById('back-button');
+    if (backButton) {
+        backButton.addEventListener('click', goBack);
+    }
+    
+    // 다음 문제 버튼들
+    if (nextButtonEl) {
+        nextButtonEl.addEventListener('click', loadQuestion);
+    }
+    
+    if (nextButtonWritingEl) {
+        nextButtonWritingEl.addEventListener('click', loadQuestion);
+    }
+    
+    // Check Answers 버튼
+    const checkButton = document.getElementById('check-button');
+    if (checkButton) {
+        checkButton.addEventListener('click', checkWriting);
+    }
+});
 
 // 카테고리 선택
 function selectCategory(category) {
@@ -97,7 +135,7 @@ function displayQuestion() {
         const button = document.createElement('button');
         button.className = 'option-btn';
         button.textContent = option;
-        button.onclick = () => selectAnswer(String.fromCharCode(97 + index));
+        button.addEventListener('click', () => selectAnswer(String.fromCharCode(97 + index)));
         optionsContainerEl.appendChild(button);
     });
 }
@@ -128,7 +166,7 @@ function displayWritingExercise() {
             const hintEl = document.createElement('span');
             hintEl.className = 'hint-word';
             hintEl.textContent = hint;
-            hintEl.onclick = () => useHint(hint, hintEl);
+            hintEl.addEventListener('click', () => useHint(hint, hintEl));
             hintsContainerEl.appendChild(hintEl);
         });
     }
@@ -156,7 +194,7 @@ async function selectAnswer(selectedAnswer) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-               Failed to check answerrentQuestion.id,
+                questionId: currentQuestion.id,
                 answer: selectedAnswer
             })
         });
@@ -165,7 +203,7 @@ async function selectAnswer(selectedAnswer) {
         showResult(result.correct, selectedAnswer, result.correctAnswer);
     } catch (error) {
         console.error('Error checking answer:', error);
-        alert('답안을 확인하는데 실패했습니다.');
+        alert('Failed to check answer.');
         buttons.forEach(btn => btn.disabled = false);
     }
 }
@@ -179,21 +217,21 @@ function showResult(isCorrect, selectedAnswer, correctAnswer) {
         
         if (optionLetter === correctAnswer) {
             btn.classList.add('correct');
-        } else if (optionLetter === selectCorrect! Great job!';
-        correctCount++;
-        correctCountEl.textContent = correctCount;
-    } else {
-        resultMessageEl.classList.add('wrong');
-        resultMessageEl.textContent = '😊 Not quite! Try the next one
+        } else if (optionLetter === selectedAnswer && !isCorrect) {
+            btn.classList.add('wrong');
+        }
+    });
+    
+    resultMessageEl.classList.add('show');
     
     if (isCorrect) {
         resultMessageEl.classList.add('correct');
-        resultMessageEl.textContent = '🎉 정답입니다! 잘했어요!';
+        resultMessageEl.textContent = '✅ Correct! Great job!';
         correctCount++;
         correctCountEl.textContent = correctCount;
     } else {
         resultMessageEl.classList.add('wrong');
-        resultMessageEl.textContent = '😊 아쉬워요! 다시 도전해봐요!';
+        resultMessageEl.textContent = '😊 Not quite! Try the next one!';
         wrongCount++;
         wrongCountEl.textContent = wrongCount;
     }
@@ -201,11 +239,45 @@ function showResult(isCorrect, selectedAnswer, correctAnswer) {
     nextButtonEl.style.display = 'block';
 }
 
-// 다음 문제 버튼
-nextButtonEl.onclick = () => {
-    loadQuestion();
-};
-
-nextButtonWritingEl.onclick = () => {
-    loadQuestion();
-};
+// 쓰기 답안 확인
+function checkWriting() {
+    const inputs = storyTextEl.querySelectorAll('input[type="text"]');
+    let allCorrect = true;
+    let correctAnswers = 0;
+    
+    inputs.forEach(input => {
+        const userAnswer = input.value.trim().toLowerCase();
+        const correctAnswer = input.dataset.answer.toLowerCase();
+        
+        if (userAnswer === correctAnswer) {
+            input.classList.remove('wrong');
+            input.classList.add('correct');
+            correctAnswers++;
+        } else {
+            input.classList.remove('correct');
+            input.classList.add('wrong');
+            allCorrect = false;
+        }
+    });
+    
+    resultMessageWritingEl.classList.add('show');
+    
+    if (allCorrect) {
+        resultMessageWritingEl.classList.remove('wrong');
+        resultMessageWritingEl.classList.add('correct');
+        resultMessageWritingEl.textContent = '🎉 Perfect! All answers are correct!';
+        correctCount++;
+    } else {
+        resultMessageWritingEl.classList.remove('correct');
+        resultMessageWritingEl.classList.add('wrong');
+        resultMessageWritingEl.textContent = `You got ${correctAnswers} out of ${inputs.length} correct. Try again!`;
+        wrongCount++;
+    }
+    
+    correctCountEl.textContent = correctCount;
+    wrongCountEl.textContent = wrongCount;
+    
+    if (allCorrect) {
+        nextButtonWritingEl.style.display = 'block';
+    }
+}
