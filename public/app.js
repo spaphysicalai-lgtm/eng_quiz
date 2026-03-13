@@ -70,12 +70,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // 카테고리 선택
 function selectCategory(category) {
-    // GPT Test로 이동
-    if (category === 'gpt-test') {
-        window.location.href = '/gpt-test.html';
-        return;
-    }
-    
     currentCategory = category;
     categoryPage.classList.remove('active');
     quizPage.classList.add('active');
