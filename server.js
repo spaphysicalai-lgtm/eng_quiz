@@ -1,35 +1,11 @@
 require('dotenv').config();
 const express = require('express');
-const { createClient } = require('@supabase/supabase-js');
 const { AzureOpenAI } = require('openai');
 const path = require('path');
+const questionsData = require('./questions-data');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-// 환경 변수 확인
-if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
-  console.error('❌ ERROR: Supabase 환경 변수가 설정되지 않았습니다!');
-  console.error('SUPABASE_URL:', process.env.SUPABASE_URL || 'NOT SET');
-  console.error('SUPABASE_ANON_KEY:', process.env.SUPABASE_ANON_KEY ? 'Set' : 'NOT SET');
-  console.error('\nVercel 환경 변수 설정 방법:');
-  console.error('1. Vercel Dashboard 접속');
-  console.error('2. 프로젝트 선택 → Settings → Environment Variables');
-  console.error('3. 다음 변수 추가:');
-  console.error('   - SUPABASE_URL = https://gfrgaqqugwmzxqowhhbx.supabase.co');
-  console.error('   - SUPABASE_ANON_KEY = (your anon key)');
-  console.error('4. Deployments 탭에서 Redeploy\n');
-}
-
-// Supabase 클라이언트 초기화
-console.log('Initializing Supabase client...');
-console.log('SUPABASE_URL:', process.env.SUPABASE_URL || 'NOT SET');
-console.log('SUPABASE_ANON_KEY:', process.env.SUPABASE_ANON_KEY ? 'Set' : 'NOT SET');
-
-const supabase = createClient(
-  process.env.SUPABASE_URL || 'https://gfrgaqqugwmzxqowhhbx.supabase.co',
-  process.env.SUPABASE_ANON_KEY || ''
-);
 
 // Azure OpenAI 클라이언트 초기화
 let azureOpenAI = null;
@@ -52,154 +28,109 @@ if (process.env.AZURE_OPENAI_API_KEY && process.env.AZURE_OPENAI_ENDPOINT) {
 app.use(express.json());
 app.use(express.static('public'));
 
-// Supabase 연결 테스트
-app.get('/api/test', async (req, res) => {
-  try {
-    console.log('Testing Supabase connection...');
-    const { data, error } = await supabase
-      .from('questions')
-      .select('count')
-      .limit(1);
-    
-    if (error) {
-      console.error('Supabase connection error:', error);
-      return res.status(500).json({ 
-        success: false, 
-        error: error.message,
-        details: error
-      });
-    }
-    
-    console.log('Supabase connection successful!');
-    res.json({ 
-      success: true, 
-      message: 'Supabase 연결 성공!',
-      hasData: data && data.length > 0
-    });
-  } catch (error) {
-    console.error('Test endpoint error:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: error.message 
-    });
-  }
+// 테스트 엔드포인트
+app.get('/api/test', (req, res) => {
+  res.json({ 
+    success: true, 
+    message: '로컬 데이터로 실행 중입니다! 🎉',
+    totalQuestions: Object.keys(questionsData).length
+  });
 });
 
-// 모든 문제 가져오기
-app.get('/api/questions', async (req, res) => {
-  try {
-    console.log('Fetching all questions...');
-    const { data, error } = await supabase
-      .from('questions')
-      .select('*')
-      .order('id', { ascending: true });
-    
-    if (error) {
-      console.error('Supabase error:', error);
-      throw error;
-    }
-    
-    console.log('Total questions:', data ? data.length : 0);
-    res.json(data);
-  } catch (error) {
-    console.error('Error fetching questions:', error);
-    res.status(500).json({ 
-      error: '문제를 불러오는데 실패했습니다.',
-      message: error.message
-    });
-  }
-});
-
-// 랜덤 문제 가져오기
-app.get('/api/questions/random', async (req, res) => {
+// 랜덤 문제 가져오기 (레벨별)
+app.get('/api/questions/random', (req, res) => {
   try {
     const category = req.query.category || 'reading';
-    console.log('Fetching random question for category:', category);
+    const level = req.query.level || 'beginner';
+    
+    console.log(`Fetching random question for ${category} - ${level}`);
     
     if (category === 'writing') {
-      // Writing exercises from separate table
-      const { data, error } = await supabase
-        .from('writing_exercises')
-        .select('*');
-      
-      if (error) {
-        console.error('Supabase error details:', error);
-        throw error;
-      }
-      
-      console.log('Writing exercises fetched:', data ? data.length : 0);
-      
-      if (data && data.length > 0) {
-        const randomExercise = data[Math.floor(Math.random() * data.length)];
-        // Parse JSONB fields
-        randomExercise.blanks = typeof randomExercise.blanks === 'string' 
-          ? JSON.parse(randomExercise.blanks) 
-          : randomExercise.blanks;
-        randomExercise.hints = typeof randomExercise.hints === 'string' 
-          ? JSON.parse(randomExercise.hints) 
-          : randomExercise.hints;
+      // Writing exercises
+      const exercises = questionsData[category][level];
+      if (exercises && exercises.length > 0) {
+        const randomExercise = exercises[Math.floor(Math.random() * exercises.length)];
         res.json(randomExercise);
       } else {
-        res.status(404).json({ 
-          error: 'No writing exercises found.',
-          hint: 'Run database.sql in Supabase SQL Editor.'
-        });
+        res.status(404).json({ error: 'No writing exercises found.' });
       }
     } else {
       // Multiple choice questions
-      const { data, error } = await supabase
-        .from('questions')
-        .select('*')
-        .eq('category', category);
-      
-      if (error) {
-        console.error('Supabase error details:', error);
-        throw error;
-      }
-      
-      console.log('Questions fetched:', data ? data.length : 0);
-      
-      if (data && data.length > 0) {
-        const randomQuestion = data[Math.floor(Math.random() * data.length)];
+      const questions = questionsData[category][level];
+      if (questions && questions.length > 0) {
+        const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
         res.json(randomQuestion);
       } else {
-        res.status(404).json({ 
-          error: 'No questions found.',
-          hint: 'Run database.sql in Supabase SQL Editor.'
-        });
+        res.status(404).json({ error: 'No questions found.' });
       }
     }
   } catch (error) {
     console.error('Error fetching random question:', error);
     res.status(500).json({ 
       error: 'Failed to fetch question.',
-      message: error.message,
-      details: error.details || error.hint || 'No details'
+      message: error.message
     });
   }
 });
 
 // 답안 확인
-app.post('/api/check-answer', async (req, res) => {
+app.post('/api/check-answer', (req, res) => {
   try {
-    const { questionId, answer } = req.body;
+    const { questionId, answer, category, level } = req.body;
     
-    const { data, error } = await supabase
-      .from('questions')
-      .select('correct_answer')
-      .eq('id', questionId)
-      .single();
+    // Find the question in questionsData
+    let question = null;
+    let foundCategory = category;
+    let foundLevel = level;
     
-    if (error) throw error;
+    // If category/level provided, search there first
+    if (category && level && questionsData[category] && questionsData[category][level]) {
+      question = questionsData[category][level].find(q => q.id === questionId);
+    }
     
-    const isCorrect = data.correct_answer === answer;
+    // Otherwise search all categories/levels
+    if (!question) {
+      for (const cat in questionsData) {
+        for (const lvl in questionsData[cat]) {
+          const found = questionsData[cat][lvl].find(q => q.id === questionId);
+          if (found) {
+            question = found;
+            foundCategory = cat;
+            foundLevel = lvl;
+            break;
+          }
+        }
+        if (question) break;
+      }
+    }
+    
+    if (!question) {
+      return res.status(404).json({ error: 'Question not found' });
+    }
+    
+    // Check answer
+    let isCorrect = false;
+    let correctAnswerLetter = '';
+    
+    if (question.correct_answer) {
+      // Find which option matches the correct answer
+      const correctIndex = question.options.findIndex(opt => 
+        opt.toLowerCase() === question.correct_answer.toLowerCase()
+      );
+      
+      if (correctIndex >= 0) {
+        correctAnswerLetter = String.fromCharCode(97 + correctIndex); // a, b, c, d
+        isCorrect = correctAnswerLetter === answer.toLowerCase();
+      }
+    }
+    
     res.json({ 
       correct: isCorrect,
-      correctAnswer: data.correct_answer
+      correctAnswer: correctAnswerLetter
     });
   } catch (error) {
     console.error('Error checking answer:', error);
-    res.status(500).json({ error: '답안을 확인하는데 실패했습니다.' });
+    res.status(500).json({ error: 'Failed to check answer.' });
   }
 });
 

@@ -20,30 +20,68 @@
                     <div class="category-icon">📖</div>
                     <h2>읽기 Reading</h2>
                     <p>문장 이해하기 ✨</p>
-                    <span class="question-count">🎈 30개 문제</span>
+                    <span class="question-count">🎈 150개 문제</span>
                 </div>
                 
                 <div class="category-card writing" data-category="writing">
                     <div class="category-icon">✍️</div>
                     <h2>쓰기 Writing</h2>
                     <p>이야기 완성하기 🌈</p>
-                    <span class="question-count">🎨 30개 연습</span>
+                    <span class="question-count">🎨 150개 연습</span>
                 </div>
                 
                 <div class="category-card vocabulary" data-category="vocabulary">
                     <div class="category-icon">📚</div>
                     <h2>단어 Vocabulary</h2>
                     <p>단어 뜻 배우기 🎪</p>
-                    <span class="question-count">⭐ 30개 문제</span>
+                    <span class="question-count">⭐ 150개 문제</span>
                 </div>
                 
                 <div class="category-card grammar" data-category="grammar">
                     <div class="category-icon">📝</div>
                     <h2>문법 Grammar</h2>
                     <p>문법 규칙 익히기 🎯</p>
-                    <span class="question-count">🌟 30개 문제</span>
+                    <span class="question-count">🌟 150개 문제</span>
                 </div>
             </main>
+        </div>
+
+        <!-- Level Selection Page -->
+        <div id="level-page" class="page">
+            <header>
+                <h1>🎯 레벨을 선택하세요! 🎯</h1>
+                <p class="subtitle" id="level-subtitle">Reading</p>
+            </header>
+            
+            <main class="level-grid">
+                <div class="level-card beginner" data-level="beginner">
+                    <div class="level-icon">🌱</div>
+                    <h2>초급 Beginner</h2>
+                    <p>쉬운 문제로 시작! 🐣</p>
+                    <span class="level-description">유치원~초등 1학년</span>
+                    <span class="question-count">🎈 50개 문제</span>
+                </div>
+                
+                <div class="level-card intermediate" data-level="intermediate">
+                    <div class="level-icon">🌻</div>
+                    <h2>중급 Intermediate</h2>
+                    <p>조금 더 도전해볼까? 🌟</p>
+                    <span class="level-description">초등 1~2학년</span>
+                    <span class="question-count">🎨 50개 문제</span>
+                </div>
+                
+                <div class="level-card advanced" data-level="advanced">
+                    <div class="level-icon">🏆</div>
+                    <h2>고급 Advanced</h2>
+                    <p>최고 레벨 도전! 🚀</p>
+                    <span class="level-description">초등 2~3학년</span>
+                    <span class="question-count">⭐ 50개 문제</span>
+                </div>
+            </main>
+            
+            <div class="level-back-container">
+                <button id="level-back-button" class="back-btn-lg">← 뒤로 가기</button>
+            </div>
         </div>
 
         <!-- Quiz Page -->
@@ -75,6 +113,21 @@
 
                     <div class="options-container" id="options-container">
                         <!-- Options will be added dynamically -->
+                    </div>
+
+                    <div class="help-buttons">
+                        <button id="hint-button" class="btn-hint">💡 힌트 보기</button>
+                        <button id="show-answer-button" class="btn-show-answer">🔍 정답 보기</button>
+                    </div>
+
+                    <div id="hint-box" class="hint-box" style="display: none;">
+                        <h3>💡 힌트</h3>
+                        <p id="hint-text"></p>
+                    </div>
+
+                    <div id="explanation-box" class="explanation-box" style="display: none;">
+                        <h3>📖 설명</h3>
+                        <p id="explanation-text"></p>
                     </div>
 
                     <div id="result-message" class="result-message"></div>

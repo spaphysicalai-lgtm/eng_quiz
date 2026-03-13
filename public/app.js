@@ -1,5 +1,6 @@
 let currentQuestion = null;
 let currentCategory = null;
+let currentLevel = null;
 let correctCount = 0;
 let wrongCount = 0;
 let currentAnswers = {};
@@ -12,16 +13,24 @@ const categoryNames = {
     'grammar': '📝 Grammar'
 };
 
+// 레벨 이름 매핑
+const levelNames = {
+    'beginner': '🌱 초급',
+    'intermediate': '🌻 중급',
+    'advanced': '🏆 고급'
+};
+
 // DOM 요소들 (나중에 초기화)
-let categoryPage, quizPage, loadingEl, quizContentEl, writingContentEl;
+let categoryPage, levelPage, quizPage, loadingEl, quizContentEl, writingContentEl;
 let questionTextEl, optionsContainerEl, resultMessageEl, resultMessageWritingEl;
 let nextButtonEl, nextButtonWritingEl, correctCountEl, wrongCountEl;
-let currentCategoryEl, storyTextEl, hintsContainerEl;
+let currentCategoryEl, storyTextEl, hintsContainerEl, levelSubtitleEl;
 
 // DOM 로드 완료 후 초기화
 document.addEventListener('DOMContentLoaded', function() {
     // 요소 선택
     categoryPage = document.getElementById('category-page');
+    levelPage = document.getElementById('level-page');
     quizPage = document.getElementById('quiz-page');
     loadingEl = document.getElementById('loading');
     quizContentEl = document.getElementById('quiz-content');
@@ -37,6 +46,7 @@ document.addEventListener('DOMContentLoaded', function() {
     currentCategoryEl = document.getElementById('current-category');
     storyTextEl = document.getElementById('story-text');
     hintsContainerEl = document.getElementById('hints-container');
+    levelSubtitleEl = document.getElementById('level-subtitle');
     
     // 카테고리 카드 클릭 이벤트
     document.querySelectorAll('.category-card').forEach(card => {
@@ -46,10 +56,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // 뒤로가기 버튼
+    // 레벨 카드 클릭 이벤트
+    document.querySelectorAll('.level-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const level = this.dataset.level;
+            selectLevel(level);
+        });
+    });
+    
+    // 뒤로가기 버튼들
     const backButton = document.getElementById('back-button');
     if (backButton) {
-        backButton.addEventListener('click', goBack);
+        backButton.addEventListener('click', goBackToLevel);
+    }
+    
+    const levelBackButton = document.getElementById('level-back-button');
+    if (levelBackButton) {
+        levelBackButton.addEventListener('click', goBackToCategory);
     }
     
     // 다음 문제 버튼들
@@ -66,15 +89,35 @@ document.addEventListener('DOMContentLoaded', function() {
     if (checkButton) {
         checkButton.addEventListener('click', checkWriting);
     }
+    
+    // 힌트 버튼
+    const hintButton = document.getElementById('hint-button');
+    if (hintButton) {
+        hintButton.addEventListener('click', showHint);
+    }
+    
+    // 정답 보기 버튼
+    const showAnswerButton = document.getElementById('show-answer-button');
+    if (showAnswerButton) {
+        showAnswerButton.addEventListener('click', showAnswer);
+    }
 });
 
 // 카테고리 선택
 function selectCategory(category) {
     currentCategory = category;
     categoryPage.classList.remove('active');
+    levelPage.classList.add('active');
+    levelSubtitleEl.textContent = categoryNames[category];
+}
+
+// 레벨 선택
+function selectLevel(level) {
+    currentLevel = level;
+    levelPage.classList.remove('active');
     quizPage.classList.add('active');
-    currentCategoryEl.textContent = categoryNames[category];
-    currentCategoryEl.className = `category-badge ${category}`;
+    currentCategoryEl.textContent = `${categoryNames[currentCategory]} - ${levelNames[level]}`;
+    currentCategoryEl.className = `category-badge ${currentCategory}`;
     correctCount = 0;
     wrongCount = 0;
     correctCountEl.textContent = correctCount;
@@ -82,11 +125,18 @@ function selectCategory(category) {
     loadQuestion();
 }
 
-// 뒤로 가기
-function goBack() {
+// 퀴즈에서 레벨 선택으로 돌아가기
+function goBackToLevel() {
     quizPage.classList.remove('active');
+    levelPage.classList.add('active');
+}
+
+// 레벨 선택에서 카테고리 선택으로 돌아가기
+function goBackToCategory() {
+    levelPage.classList.remove('active');
     categoryPage.classList.add('active');
     currentCategory = null;
+    currentLevel = null;
 }
 
 // 새 문제 로드
@@ -100,7 +150,7 @@ async function loadQuestion() {
         nextButtonEl.style.display = 'none';
         nextButtonWritingEl.style.display = 'none';
         
-        const response = await fetch(`/api/questions/random?category=${currentCategory}`);
+        const response = await fetch(`/api/questions/random?category=${currentCategory}&level=${currentLevel}`);
         if (!response.ok) throw new Error('Failed to load question');
         
         currentQuestion = await response.json();
@@ -121,10 +171,17 @@ function displayQuestion() {
     loadingEl.style.display = 'none';
     quizContentEl.style.display = 'block';
     
+    // 힌트와 설명 박스 초기화
+    const hintBox = document.getElementById('hint-box');
+    const explanationBox = document.getElementById('explanation-box');
+    if (hintBox) hintBox.style.display = 'none';
+    if (explanationBox) explanationBox.style.display = 'none';
+    
     questionTextEl.textContent = currentQuestion.question;
     optionsContainerEl.innerHTML = '';
     
-    const options = [
+    // Support both formats: options array or option_a/b/c/d fields
+    const options = currentQuestion.options || [
         currentQuestion.option_a,
         currentQuestion.option_b,
         currentQuestion.option_c,
@@ -195,7 +252,9 @@ async function selectAnswer(selectedAnswer) {
             },
             body: JSON.stringify({
                 questionId: currentQuestion.id,
-                answer: selectedAnswer
+                answer: selectedAnswer,
+                category: currentCategory,
+                level: currentLevel
             })
         });
         
@@ -281,3 +340,72 @@ function checkWriting() {
         nextButtonWritingEl.style.display = 'block';
     }
 }
+
+// 힌트 표시
+function showHint() {
+    if (!currentQuestion || !currentQuestion.hint) {
+        alert('이 문제에는 힌트가 없습니다.');
+        return;
+    }
+    
+    const hintBox = document.getElementById('hint-box');
+    const hintText = document.getElementById('hint-text');
+    
+    if (hintBox && hintText) {
+        hintText.textContent = currentQuestion.hint;
+        hintBox.style.display = 'block';
+        
+        // 힌트 박스로 부드럽게 스크롤
+        setTimeout(() => {
+            hintBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+    }
+}
+
+// 정답 보기
+function showAnswer() {
+    if (!currentQuestion || !currentQuestion.correct_answer) {
+        alert('정답을 찾을 수 없습니다.');
+        return;
+    }
+    
+    const explanationBox = document.getElementById('explanation-box');
+    const explanationText = document.getElementById('explanation-text');
+    
+    if (explanationBox && explanationText) {
+        // 정답과 설명 함께 표시
+        const correctAnswerText = `정답: ${currentQuestion.correct_answer}`;
+        const fullExplanation = currentQuestion.explanation 
+            ? `${correctAnswerText}\n\n${currentQuestion.explanation}`
+            : correctAnswerText;
+        
+        explanationText.textContent = fullExplanation;
+        explanationBox.style.display = 'block';
+        
+        // 설명 박스로 부드럽게 스크롤
+        setTimeout(() => {
+            explanationBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+        
+        // 정답 옵션 하이라이트
+        const buttons = optionsContainerEl.querySelectorAll('.option-btn');
+        const options = currentQuestion.options || [
+            currentQuestion.option_a,
+            currentQuestion.option_b,
+            currentQuestion.option_c,
+            currentQuestion.option_d
+        ];
+        
+        buttons.forEach((btn, index) => {
+            const option = options[index];
+            if (option && option.toLowerCase() === currentQuestion.correct_answer.toLowerCase()) {
+                btn.classList.add('correct');
+                btn.disabled = true;
+            }
+        });
+        
+        // 다음 문제 버튼 표시
+        nextButtonEl.style.display = 'block';
+    }
+}
+
